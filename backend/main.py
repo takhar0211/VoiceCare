@@ -48,7 +48,13 @@ app.include_router(patient_portal.router, prefix="/api/portal", tags=["Patient P
 async def health_check():
     return {"status": "healthy", "service": "voicecare"}
 
-
+@app.get("/cors-debug")
+async def cors_debug():
+    return {
+        "frontend_url": FRONTEND_URL,
+        "cors_origins": cors_origins,
+    }
+    
 @app.get("/")
 async def root():
     return {
