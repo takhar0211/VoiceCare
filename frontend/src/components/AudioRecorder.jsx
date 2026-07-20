@@ -19,7 +19,7 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
   const analyserRef = useRef(null)
   const animationRef = useRef(null)
   const streamRef = useRef(null)
-  
+
   const transcriptRef = useRef("")
   const isStoppingRef = useRef(false)
 
@@ -40,7 +40,7 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       ctx.lineWidth = 2
-      ctx.strokeStyle = isRecording ? '#ef4444' : '#2563eb'
+      ctx.strokeStyle = isRecording ? '#22C55E' : '#60A5FA'
       ctx.beginPath()
 
       const sliceWidth = canvas.width / bufferLength
@@ -103,14 +103,14 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
       const tx = db.transaction("chunks", "readonly")
       const store = tx.objectStore("chunks")
       const request = store.getAll()
-      
+
       request.onsuccess = async () => {
         const chunks = request.result
         if (!chunks || chunks.length === 0) return
-        
+
         for (const record of chunks) {
           // Process previously failed chunks
-          await processChunk(record.blob, false) 
+          await processChunk(record.blob, false)
         }
         await processFinalText()
       }
@@ -129,10 +129,10 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
         ? 'audio/webm;codecs=opus'
         : 'audio/webm'
     })
-    
+
     // We need a local ref to chunks to ensure closure accuracy
     let localChunks = []
-    
+
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) localChunks.push(e.data)
     }
@@ -182,8 +182,8 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
       // Cycle recorder every 25s perfectly to bypass Sarvam 30s limit
       chunkTimerRef.current = setInterval(() => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
-            mediaRecorderRef.current.stop()
-            setupAndStartRecorder() // immediately restart new container
+          mediaRecorderRef.current.stop()
+          setupAndStartRecorder() // immediately restart new container
         }
       }, 25000)
 
@@ -211,7 +211,7 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
 
   const processChunk = async (blob, saveLocal = true) => {
     setIsProcessing(true)
-    
+
     // 1. Save to IndexedDB local backup before network request (if not retrying)
     if (saveLocal) {
       await saveChunkToIDB(blob)
@@ -232,7 +232,7 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
         transcriptRef.current = transcriptRef.current + " " + newText
         if (onPartialTranscript) onPartialTranscript(transcriptRef.current.trim())
       }
-      
+
       // If we flagged stopping, THIS is the last chunk, process Gemini!
       if (isStoppingRef.current) {
         await processFinalText()
@@ -242,7 +242,7 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
     } catch (err) {
       console.error('Chunk processing failed. Saved to local backup:', err)
       setHasFailedUpload(true)
-      
+
       // We do not immediately trigger processFinalText here to allow the doctor to retry uploading later
       setIsProcessing(false)
     }
@@ -258,8 +258,8 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
       }
 
       if (payload.transcript.length < 5) {
-         alert("Not enough speech detected. Please try recording again.")
-         return
+        alert("Not enough speech detected. Please try recording again.")
+        return
       }
 
       const response = await axios.post(`${API}/api/audio/process-text`, payload, {
@@ -269,7 +269,7 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
 
       // Clean local backup on full success
       await clearIDB()
-      
+
       if (onResult) onResult(response.data)
     } catch (err) {
       console.error('Final text processing failed:', err)
@@ -322,13 +322,12 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
       </div>
 
       <div className="flex flex-col items-center gap-6 rounded-[24px] bg-slate-50 p-6 text-center sm:p-8">
-        <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-          isProcessing
+        <span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${isProcessing
             ? 'bg-amber-100 text-amber-700'
             : isRecording
-            ? 'bg-rose-100 text-rose-700'
-            : 'bg-emerald-100 text-emerald-700'
-        }`}>
+              ? 'bg-rose-100 text-rose-700'
+              : 'bg-emerald-100 text-emerald-700'
+          }`}>
           {isProcessing && isStoppingRef.current ? 'Preparing summary' : isRecording ? 'Recording' : 'Ready'}
         </span>
 
@@ -342,11 +341,10 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
         ) : (
           <button
             onClick={isRecording ? stopRecording : startRecording}
-            className={`relative flex h-24 w-24 items-center justify-center rounded-full text-white shadow-[0_24px_40px_-24px_rgba(15,23,42,0.8)] transition-all duration-300 hover:scale-[1.03] md:h-28 md:w-28 ${
-              isRecording
+            className={`relative flex h-24 w-24 items-center justify-center rounded-full text-white shadow-[0_24px_40px_-24px_rgba(15,23,42,0.8)] transition-all duration-300 hover:scale-[1.03] md:h-28 md:w-28 ${isRecording
                 ? 'pulse-record bg-gradient-to-br from-rose-500 to-rose-700'
                 : 'bg-gradient-to-br from-cyan-600 to-teal-700'
-            }`}
+              }`}
           >
             {isRecording ? (
               <Square className="h-9 w-9 text-white" fill="white" />
@@ -371,10 +369,10 @@ export default function AudioRecorder({ patientId, onResult, onPartialTranscript
           <h4 className="mt-3 text-2xl font-semibold text-slate-950">
             {isRecording ? 'Tap to stop the capture' : 'Tap to begin the visit'}
           </h4>
-          
+
           <div className="mt-2 flex gap-2">
             {hasFailedUpload && !isRecording && (
-              <button 
+              <button
                 onClick={retryFailedUploads}
                 className="text-xs text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-md shadow-sm transition-colors whitespace-nowrap"
               >
