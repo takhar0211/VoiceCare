@@ -16,21 +16,26 @@ app = FastAPI(
 # CORS middleware
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "")
 
-# Build origins list: support comma-separated FRONTEND_URL for multiple domains
-cors_origins = []
+# Default allowed origins
+cors_origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    "https://voice-care-37i7.vercel.app",
+]
+
 if FRONTEND_URL:
-    cors_origins.extend([u.strip() for u in FRONTEND_URL.split(",") if u.strip()])
-else:
-    # Local development fallback
-    cors_origins.extend(["http://localhost:5173", "http://localhost:5174"])
+    cors_origins.extend([u.strip().rstrip("/") for u in FRONTEND_URL.split(",") if u.strip()])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Register routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])

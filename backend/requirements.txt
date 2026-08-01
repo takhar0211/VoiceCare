@@ -9,4 +9,6 @@ reportlab
 pydantic>=2.11
 pydub
 bcrypt
+PyJWT
+email-validator
 groq
