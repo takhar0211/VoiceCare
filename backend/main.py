@@ -67,3 +67,38 @@ async def root():
         "docs": "/docs",
         "health": "/health",
     }
+
+@app.get("/debug")
+async def debug():
+    """Temporary debug endpoint to check what's failing."""
+    checks = {}
+    
+    # Check JWT import
+    try:
+        import jwt
+        checks["jwt_import"] = f"OK (version: {getattr(jwt, '__version__', 'unknown')})"
+    except Exception as e:
+        checks["jwt_import"] = f"FAIL: {e}"
+    
+    # Check bcrypt import
+    try:
+        import bcrypt
+        checks["bcrypt_import"] = "OK"
+    except Exception as e:
+        checks["bcrypt_import"] = f"FAIL: {e}"
+    
+    # Check supabase connection
+    try:
+        from db.supabase_client import get_supabase
+        db = get_supabase()
+        result = db.table("users").select("id").limit(1).execute()
+        checks["supabase"] = f"OK (connected, users table accessible)"
+    except Exception as e:
+        checks["supabase"] = f"FAIL: {e}"
+    
+    # Check env vars
+    checks["env_jwt_secret"] = "SET" if os.environ.get("JWT_SECRET") else "NOT SET (using default)"
+    checks["env_supabase_url"] = "SET" if os.environ.get("SUPABASE_URL") else "NOT SET"
+    checks["env_supabase_key"] = "SET" if os.environ.get("SUPABASE_SERVICE_KEY") else "NOT SET"
+    
+    return checks
