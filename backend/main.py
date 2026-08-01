@@ -89,12 +89,20 @@ async def debug():
     
     # Check supabase connection
     try:
+        import supabase as sb_mod
+        checks["supabase_version"] = getattr(sb_mod, '__version__', 'unknown')
+    except Exception as e:
+        checks["supabase_version"] = f"FAIL: {e}"
+    
+    try:
         from db.supabase_client import get_supabase
         db = get_supabase()
         result = db.table("users").select("id").limit(1).execute()
         checks["supabase"] = f"OK (connected, users table accessible)"
     except Exception as e:
+        import traceback
         checks["supabase"] = f"FAIL: {e}"
+        checks["supabase_traceback"] = traceback.format_exc()
     
     # Check env vars
     checks["env_jwt_secret"] = "SET" if os.environ.get("JWT_SECRET") else "NOT SET (using default)"
