@@ -4,6 +4,7 @@ python-dotenv
 supabase
 google-generativeai
 httpx
+requests
 python-multipart
 reportlab
 pydantic>=2.11
