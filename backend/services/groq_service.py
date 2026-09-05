@@ -113,7 +113,7 @@ Return ONLY valid JSON (no markdown, no code fences):
         print(f"Prompt Length: {len(prompt)} characters")
         
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  # Updated: mixtral was decommissioned
+            model="openai/gpt-oss-120b",  # Updated: mixtral was decommissioned
             messages=[
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": prompt}
@@ -287,7 +287,7 @@ Return ONLY valid JSON (no markdown, no code fences):
         print(f"Prompt Length: {len(prompt)} characters")
 
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "system", "content": system_instruction},
                 {"role": "user", "content": prompt}
@@ -351,7 +351,7 @@ If there are no visits, say "New patient — no prior history."
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "user", "content": prompt}
             ],
@@ -392,7 +392,7 @@ Return JSON:
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "user", "content": prompt}
             ],
@@ -444,7 +444,7 @@ Return empty array [] if no concerning patterns found.
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=[
                 {"role": "user", "content": prompt}
             ],
